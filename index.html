@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traffic Counter</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    button {
+      padding: 12px 20px;
+      margin: 5px;
+      font-size: 16px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+    button:active {
+      background: #004ba0;
+    }
+  </style>
+</head>
+<body>
+  <h2>Traffic Event Counter</h2>
+  <button onclick="sendData('Car Left')">Car Left</button>
+  <button onclick="sendData('Car Right')">Car Right</button>
+  <div id="feedback" style="margin-top: 20px; color: green;"></div>
+
+  <script>
+    const scriptURL = "PASTE_YOUR_DEPLOYMENT_URL_HERE"; // <-- Replace this!
+
+    function sendData(eventLabel) {
+      const data = { event: eventLabel };
+
+      fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.text())
+      .then(text => {
+        document.getElementById("feedback").textContent = "Server: " + text;
+        console.log("Server response:", text);
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        document.getElementById("feedback").textContent = "Error: " + err;
+      });
+    }
+  </script>
+</body>
+</html>
