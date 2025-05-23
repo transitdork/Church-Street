@@ -1,54 +1,158 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Traffic Counter</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Traffic & Pedestrian Counter</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 10px;
+      background: #f5f5f5;
+    }
+    .section {
+      margin-bottom: 10px;
+    }
+    .section h2 {
+      margin-top: 2px;
+      margin-bottom: 6px;
+      font-size: 1.1rem;
+    }
+    .button-grid {
+      display: grid;
+      gap: 6px;
+      justify-content: center;
+    }
+    .two-col-three-row {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(3, auto);
+    }
+    .three-col-one-row {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .three-col {
+      grid-template-columns: repeat(3, 1fr);
+    }
     button {
-      padding: 12px 20px;
-      margin: 5px;
-      font-size: 16px;
-      background: #1976d2;
-      color: white;
+      padding: 5px;
+      font-size: 0.9rem;
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
+      background-color: #1976d2;
+      color: white;
+      transition: background-color 0.2s, transform 0.1s;
+      text-align: center;
+      height: 55px;
+      width: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     button:active {
-      background: #004ba0;
+      background-color: #004ba0;
+      transform: scale(0.98);
+    }
+    #feedback {
+      text-align: center;
+      font-size: 0.9rem;
+      color: green;
+      margin-top: 5px;
+      height: 1.2rem;
+    }
+    #clock {
+      text-align: center;
+      font-size: 1rem;
+      margin-bottom: 2px;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <h2>Traffic Event Counter</h2>
-  <button onclick="sendData('Car Left')">Car Left</button>
-  <button onclick="sendData('Car Right')">Car Right</button>
-  <div id="feedback" style="margin-top: 20px; color: green;"></div>
+  <div id="clock"></div>
+  <div id="feedback"></div>
+
+  <div class="section">
+    <h2>Church St (North Leg)</h2>
+    <div class="button-grid two-col-three-row">
+      <button onclick="sendData(this, 'Church Left Car')">Car Left</button>
+      <button onclick="sendData(this, 'Church Right Car')">Car Right</button>
+      <button onclick="sendData(this, 'Church Left Truck')">Truck Left</button>
+      <button onclick="sendData(this, 'Church Right Truck')">Truck Right</button>
+      <button onclick="sendData(this, 'Church Left Bike')">Bike Left</button>
+      <button onclick="sendData(this, 'Church Right Bike')">Bike Right</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Bridge Rd (West Leg)</h2>
+    <div class="button-grid two-col-three-row">
+      <button onclick="sendData(this, 'Bridge Left Car')">Car Left</button>
+      <button onclick="sendData(this, 'Bridge Through Car')">Car Through</button>
+      <button onclick="sendData(this, 'Bridge Left Truck')">Truck Left</button>
+      <button onclick="sendData(this, 'Bridge Through Truck')">Truck Through</button>
+      <button onclick="sendData(this, 'Bridge Left Bike')">Bike Left</button>
+      <button onclick="sendData(this, 'Bridge Through Bike')">Bike Through</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Burwood Rd (East Leg)</h2>
+    <div class="button-grid three-col-one-row">
+      <button onclick="sendData(this, 'Burwood Through Car')">Car Through</button>
+      <button onclick="sendData(this, 'Burwood Through Truck')">Truck Through</button>
+      <button onclick="sendData(this, 'Burwood Through Bike')">Bike Through</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Pedestrians</h2>
+    <div class="button-grid three-col">
+      <button onclick="sendData(this, 'Pedestrian West')">West Leg</button>
+      <button onclick="sendData(this, 'Pedestrian North')">North Leg</button>
+      <button onclick="sendData(this, 'Pedestrian East')">East Leg</button>
+    </div>
+  </div>
 
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbw1OAGhWc8fBzcebPM-TWqSO_s_Xihl_2Bie37AQYt4Ytru2R5nMPPpS2oTiJzS5SKU3g/exec";
 
-    function sendData(eventLabel) {
-      const data = { event: eventLabel };
+    function sendData(button, eventType) {
+      const data = {
+        timestamp: new Date().toISOString(),
+        event: eventType
+      };
+
+      // Visual feedback
+      button.style.backgroundColor = '#2e7d32';
+      setTimeout(() => {
+        button.style.backgroundColor = '#1976d2';
+      }, 200);
+
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(30);
+      }
+
+      document.getElementById("feedback").textContent = `Sent: ${eventType}`;
 
       fetch(scriptURL, {
         method: 'POST',
-        mode: 'no-cors',  // ← This is the key addition
+        mode: 'no-cors',
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json'
         }
-      })
-      .then(() => {
-        document.getElementById("feedback").textContent = "Sent!";
-        console.log("Event sent (no-cors mode)");
-      })
-      .catch(err => {
-        console.error("Fetch error:", err);
-        document.getElementById("feedback").textContent = "Fetch error: " + err;
-      });
+      }).catch(err => console.error('Error:', err));
     }
+
+    // Live Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("clock").textContent = now.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
   </script>
 </body>
 </html>
