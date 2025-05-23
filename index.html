@@ -27,24 +27,26 @@
   <div id="feedback" style="margin-top: 20px; color: green;"></div>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbw1OAGhWc8fBzcebPM-TWqSO_s_Xihl_2Bie37AQYt4Ytru2R5nMPPpS2oTiJzS5SKU3g/exec"; // <-- Replace this!
+    const scriptURL = "https://script.google.com/macros/s/AKfycbw1OAGhWc8fBzcebPM-TWqSO_s_Xihl_2Bie37AQYt4Ytru2R5nMPPpS2oTiJzS5SKU3g/exec";
 
     function sendData(eventLabel) {
       const data = { event: eventLabel };
 
       fetch(scriptURL, {
         method: 'POST',
+        mode: 'no-cors',  // ← This is the key addition
         body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
-      .then(res => res.text())
-      .then(text => {
-        document.getElementById("feedback").textContent = "Server: " + text;
-        console.log("Server response:", text);
+      .then(() => {
+        document.getElementById("feedback").textContent = "Sent!";
+        console.log("Event sent (no-cors mode)");
       })
       .catch(err => {
         console.error("Fetch error:", err);
-        document.getElementById("feedback").textContent = "Error: " + err;
+        document.getElementById("feedback").textContent = "Fetch error: " + err;
       });
     }
   </script>
